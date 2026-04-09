@@ -278,6 +278,140 @@ const ALL_ENTRIES = [
   { owner:'Chris Cook 2',        golfers:['Bryson DeChambeau','Ludvig Aberg','Tommy Fleetwood','Xander Schauffele'] },
   { owner:'Jeremy Malcolm 2',    golfers:['Bryson DeChambeau','Xander Schauffele','Ludvig Aberg','Tommy Fleetwood'] },
   { owner:'Joe Murphy',          golfers:['Bryson DeChambeau','Ludvig Aberg','Tommy Fleetwood','Patrick Reed'] },
+  { owner:'Jack McCrery'="font-size:24px;">⛳</span>
+    <div class="flag-line r"></div>
+  </div>
+  <h1>Masters Pool <span>2026</span></h1>
+  <div class="subtitle">Augusta National · April 10–13</div>
+  <div class="memorial">In Memory of Geoff Martyn</div>
+
+  <div class="status-bar">
+    <div class="status-pill">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Loading…</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <span class="status-pill" id="lastUpdated"></span>
+      <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="payout-banner">
+    <div class="payout-title">💰 Prize Payouts — 70 Entries · $3,500 Pot</div>
+    <div class="payout-places">
+      <span class="payout-item"><strong>🥇 1st:</strong> $1,982</span>
+      <span class="payout-item"><strong>🥈 2nd:</strong> $1,068</span>
+      <span class="payout-item"><strong>🥉 3rd:</strong> $300</span>
+      <span class="payout-item"><strong>4th:</strong> $150</span>
+    </div>
+    <div class="payout-note">Ties split prize money equally between tied finishers</div>
+  </div>
+
+  <details class="rules-box">
+    <summary>▸ Pool Rules &amp; Scoring</summary>
+    <div class="rules-body">
+      <strong>Pick 4 golfers.</strong> Score = sum of Sunday finishing positions. Lowest total wins.<br>
+      <strong>Missed cut / WD:</strong> Player scores (# of finishers + 1) + 8. Example: 50 make cut → MC = 59.<br>
+      <strong>Ties:</strong> Tied entries share the same rank. Prize money split equally between tied finishers.
+    </div>
+  </details>
+
+  <div class="meta-row">
+    <span class="round-badge" id="roundBadge">Fetching live scores…</span>
+    <span class="entry-count">70 entries · $3,500 pot</span>
+  </div>
+
+  <div class="tab-row">
+    <button class="tab-btn active" id="tab-scores"     onclick="switchTab('scores')">🏆 Leaderboard</button>
+    <button class="tab-btn"        id="tab-similarity" onclick="switchTab('similarity')">🔍 Pick Similarity</button>
+  </div>
+
+  <div id="mainContent">
+    <div class="message-box"><div class="icon">⛳</div><div>Fetching live Masters scores…</div></div>
+  </div>
+
+  <div class="legend" id="legend">
+    <span><span class="golfer-pos pos-active">T5</span> Active</span>
+    <span><span class="golfer-pos pos-complete">3rd</span> Round complete</span>
+    <span><span class="golfer-pos pos-mc">MC</span> Missed cut</span>
+    <span><span class="golfer-pos pos-wd">WD</span> Withdrawn</span>
+    <span><span class="golfer-pos pos-pending">—</span> Not yet started</span>
+  </div>
+
+</main>
+
+<footer>Masters Pool 2026 · Honoring Geoff Martyn · Live scores via ESPN · Lowest combined finishing position wins</footer>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  ALL 70 ENTRIES — HARDCODED FROM SPREADSHEET
+//  Names normalized to match ESPN leaderboard
+// ═══════════════════════════════════════════════════
+const ALL_ENTRIES = [
+  { owner:'Toph Kirland',        golfers:['Xander Schauffele','Ludvig Aberg','Tommy Fleetwood','Cameron Young'] },
+  { owner:'Vince Caporuscio',    golfers:['Xander Schauffele','Cameron Young','Rory McIlroy','Ludvig Aberg'] },
+  { owner:'Devin Kennedy',       golfers:['Xander Schauffele','Matt Fitzpatrick','Tommy Fleetwood','Jon Rahm'] },
+  { owner:'Brian Hegenbart 4',   golfers:['Xander Schauffele','Akshay Bhatia','Cameron Young','Matt Fitzpatrick'] },
+  { owner:'Bill Nunley',         golfers:['Scottie Scheffler','Rory McIlroy','Jon Rahm','Bryson DeChambeau'] },
+  { owner:'Brendan Glavin',      golfers:['Scottie Scheffler','Bryson DeChambeau','Hideki Matsuyama','Justin Rose'] },
+  { owner:'Brian Bateh 1',       golfers:['Scottie Scheffler','Bryson DeChambeau','Rory McIlroy','Jon Rahm'] },
+  { owner:'Brian Bateh 2',       golfers:['Scottie Scheffler','Cameron Young','Jordan Spieth','Collin Morikawa'] },
+  { owner:'Brian Hegenbart 2',   golfers:['Scottie Scheffler','Xander Schauffele','Rory McIlroy','Jon Rahm'] },
+  { owner:'Brian Hegenbart 3',   golfers:['Scottie Scheffler','Ludvig Aberg','Bryson DeChambeau','Cameron Young'] },
+  { owner:'Chris Haddock',       golfers:['Scottie Scheffler','Rory McIlroy','Adam Scott','Jason Day'] },
+  { owner:'Chris Kemph',         golfers:['Scottie Scheffler','Rory McIlroy','Bryson DeChambeau','Patrick Cantlay'] },
+  { owner:'Dan Chudd',           golfers:['Scottie Scheffler','Bryson DeChambeau','Ludvig Aberg','Tommy Fleetwood'] },
+  { owner:'Dan Murphy',          golfers:['Scottie Scheffler','Jon Rahm','Patrick Reed','Xander Schauffele'] },
+  { owner:'Gary Mann',           golfers:['Scottie Scheffler','Justin Rose','Cameron Young','Tommy Fleetwood'] },
+  { owner:'Greg Carnivale 1',    golfers:['Scottie Scheffler','Rory McIlroy','Jon Rahm','Bryson DeChambeau'] },
+  { owner:'Greg Carnivale 2',    golfers:['Scottie Scheffler','Xander Schauffele','Ludvig Aberg','Jon Rahm'] },
+  { owner:'Jim McEnerny 2',      golfers:['Scottie Scheffler','Bryson DeChambeau','Hideki Matsuyama','Cameron Young'] },
+  { owner:'Jim McEnerny 1',      golfers:['Scottie Scheffler','Rory McIlroy','Xander Schauffele','Jon Rahm'] },
+  { owner:'KC Arns 1',           golfers:['Scottie Scheffler','Jon Rahm','Robert MacIntyre','Ludvig Aberg'] },
+  { owner:'Keith Simpson',       golfers:['Scottie Scheffler','Rory McIlroy','Jon Rahm','Xander Schauffele'] },
+  { owner:'Matt Maher',          golfers:['Scottie Scheffler','Ludvig Aberg','Cameron Young','Tommy Fleetwood'] },
+  { owner:'Matt Wesmiller 2',    golfers:['Scottie Scheffler','Ludvig Aberg','Akshay Bhatia','Bryson DeChambeau'] },
+  { owner:'Michael Paluzzi',     golfers:['Scottie Scheffler','Rory McIlroy','Bryson DeChambeau','Jon Rahm'] },
+  { owner:'Mike Maher',          golfers:['Scottie Scheffler','Matt Fitzpatrick','Robert MacIntyre','Jake Knapp'] },
+  { owner:'Musa Farmand',        golfers:['Scottie Scheffler','Bryson DeChambeau','Jon Rahm','Xander Schauffele'] },
+  { owner:'Patrick McNamara',    golfers:['Scottie Scheffler','Bryson DeChambeau','Rory McIlroy','Ludvig Aberg'] },
+  { owner:'Paul Benninghof',     golfers:['Scottie Scheffler','Jon Rahm','Xander Schauffele','Ludvig Aberg'] },
+  { owner:'Ryan Bateman',        golfers:['Scottie Scheffler','Ludvig Aberg','Jon Rahm','Xander Schauffele'] },
+  { owner:'Chris Cook 1',        golfers:['Scottie Scheffler','Ludvig Aberg','Xander Schauffele','Cameron Young'] },
+  { owner:'Chris Roberson',      golfers:['Scottie Scheffler','Xander Schauffele','Ludvig Aberg','Tommy Fleetwood'] },
+  { owner:'Jimmy Trinh 2',       golfers:['Scottie Scheffler','Jon Rahm','Bryson DeChambeau','Rory McIlroy'] },
+  { owner:'Joe Greiner 1',       golfers:['Scottie Scheffler','Tommy Fleetwood','Matt Fitzpatrick','Patrick Reed'] },
+  { owner:'Michael Cooper',      golfers:['Scottie Scheffler','Bryson DeChambeau','Jon Rahm','Justin Rose'] },
+  { owner:'Rick Philbin',        golfers:['Scottie Scheffler','Rory McIlroy','Bryson DeChambeau','Jon Rahm'] },
+  { owner:'Ryan Fannon',         golfers:['Scottie Scheffler','Bryson DeChambeau','Cameron Young','Tommy Fleetwood'] },
+  { owner:'Dillon Kirland',      golfers:['Scottie Scheffler','Xander Schauffele','Bryson DeChambeau','Jon Rahm'] },
+  { owner:'Jeremy Malcolm 1',    golfers:['Scottie Scheffler','Rory McIlroy','Cameron Young','J.J. Spaun'] },
+  { owner:'Eric Glowniak',       golfers:['Scottie Scheffler','Ludvig Aberg','Xander Schauffele','Corey Conners'] },
+  { owner:'Nate Wood',           golfers:['Scottie Scheffler','Xander Schauffele','Ludvig Aberg','Jon Rahm'] },
+  { owner:'Chris Madison 3',     golfers:['Scottie Scheffler','Jon Rahm','Jacob Bridgeman','Cameron Young'] },
+  { owner:'Paul Arns',           golfers:['Scottie Scheffler','Cameron Smith','Jordan Spieth','Matt Fitzpatrick'] },
+  { owner:'Dave Mornhinweg',     golfers:['Matt Fitzpatrick','Jon Rahm','Akshay Bhatia','Xander Schauffele'] },
+  { owner:'Chris Meighan',       golfers:['Justin Rose','Tommy Fleetwood','Ludvig Aberg','Viktor Hovland'] },
+  { owner:'Cesar Santana',       golfers:['Jon Rahm','Xander Schauffele','Cameron Young','Robert MacIntyre'] },
+  { owner:'Mike Losasso',        golfers:['Jon Rahm','Akshay Bhatia','Ludvig Aberg','Wyndham Clark'] },
+  { owner:'Amy Beth Roy',        golfers:['Cameron Young','Xander Schauffele','Ludvig Aberg','Maverick McNealy'] },
+  { owner:'Chris Madison 2',     golfers:['Cameron Young','Xander Schauffele','Justin Rose','Rory McIlroy'] },
+  { owner:'Nick Canatsey',       golfers:['Cameron Young','Matt Fitzpatrick','Xander Schauffele','Justin Rose'] },
+  { owner:'Joe Greiner 2',       golfers:['Bryson DeChambeau','Xander Schauffele','Jon Rahm','Cameron Young'] },
+  { owner:'Gary Felice',         golfers:['Bryson DeChambeau','Xander Schauffele','Jon Rahm','Sungjae Im'] },
+  { owner:'Matt Wesmiller 1',    golfers:['Bryson DeChambeau','Xander Schauffele','Matt Fitzpatrick','Patrick Reed'] },
+  { owner:'Chad Hess 1',         golfers:['Bryson DeChambeau','Xander Schauffele','Jordan Spieth','Jacob Bridgeman'] },
+  { owner:'Chad Hess 3',         golfers:['Bryson DeChambeau','Xander Schauffele','Patrick Reed','Jacob Bridgeman'] },
+  { owner:'KC Arns 2',           golfers:['Bryson DeChambeau','Rory McIlroy','Xander Schauffele','Tommy Fleetwood'] },
+  { owner:'Chad Hess 2',         golfers:['Bryson DeChambeau','Justin Rose','Matt Fitzpatrick','Xander Schauffele'] },
+  { owner:'Robbie Salem',        golfers:['Bryson DeChambeau','Cameron Young','Ludvig Aberg','Matt Fitzpatrick'] },
+  { owner:'Brian Hegenbart 1',   golfers:['Bryson DeChambeau','Xander Schauffele','Ludvig Aberg','Chris Gotterup'] },
+  { owner:'Chris Cook 2',        golfers:['Bryson DeChambeau','Ludvig Aberg','Tommy Fleetwood','Xander Schauffele'] },
+  { owner:'Jeremy Malcolm 2',    golfers:['Bryson DeChambeau','Xander Schauffele','Ludvig Aberg','Tommy Fleetwood'] },
+  { owner:'Joe Murphy',          golfers:['Bryson DeChambeau','Ludvig Aberg','Tommy Fleetwood','Patrick Reed'] },
   { owner:'Jack McCrery',        golfers:['Bryson DeChambeau','Jon Rahm','Tommy Fleetwood','Patrick Reed'] },
   { owner:'Marquis Green',       golfers:['Bryson DeChambeau','Jacob Bridgeman','Xander Schauffele','Jon Rahm'] },
   { owner:'Chris Madison 1',     golfers:['Bryson DeChambeau','Matt Fitzpatrick','Ludvig Aberg','Cameron Young'] },
