@@ -229,7 +229,7 @@ function parseESPN(data) {
     else { stat = 'pending'; loc = teeTime || 'R1'; }
 
     // CRITICAL: If ESPN hasn't assigned a rank yet, assume based on sortOrder
-    const displayPos = p.position?.displayValue || '--';
+    const displayPos = p?.status.position?.displayValue || '--';
     let numericPos = parseInt(displayPos.replace('T', '')) || p.sortOrder || 99;
 
     return {
