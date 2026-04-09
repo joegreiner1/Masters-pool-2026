@@ -297,21 +297,31 @@ const PAYOUTS = { 1: 1982, 2: 1068, 3: 300, 4: 150 };
 // ═══════════════════════════════════════════════════
 //  ESPN API
 // ═══════════════════════════════════════════════════
-const ESPN_URL   = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?league=pga';
-const CORS_PROXY = 'https://api.allorigins.win/get?url=';
+const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?league=pga';
+const PROXIES = [
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
+  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+];
 
 async function fetchESPN() {
   try {
     const r = await fetch(ESPN_URL);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    console.log('Direct ESPN succeeded');
     return parseESPN(await r.json());
-  } catch(e) { console.warn('Direct ESPN failed, trying proxy…', e); }
-  try {
-    const r = await fetch(CORS_PROXY + encodeURIComponent(ESPN_URL));
-    if (!r.ok) throw new Error(`Proxy ${r.status}`);
-    const w = await r.json();
-    return parseESPN(JSON.parse(w.contents));
-  } catch(e) { throw new Error('Could not reach ESPN. Check your connection.'); }
+  } catch(e) { console.warn('Direct failed:', e.message); }
+  for (const proxyFn of PROXIES) {
+    try {
+      const r = await fetch(proxyFn(ESPN_URL));
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const raw = await r.json();
+      const data = raw.contents ? JSON.parse(raw.contents) : raw;
+      console.log('Proxy succeeded');
+      return parseESPN(data);
+    } catch(e) { console.warn('Proxy failed:', e.message); }
+  }
+  throw new Error('All ESPN sources failed — try refreshing in a moment.');
 }
 
 function parseESPN(data) {
