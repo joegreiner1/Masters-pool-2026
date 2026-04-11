@@ -99,7 +99,7 @@
   </div>
 </main>
 
-<footer>Live data via ESPN · 58 Penalty for MC · Lowest Combined Rank Wins</footer>
+<footer>Live data via ESPN · 63 Penalty for MC · Lowest Combined Rank Wins</footer>
 
 <script>
 // ═══════════════════════════════════════════════════
@@ -179,7 +179,7 @@ const ALL_ENTRIES = [
 ];
 
 const PAYOUTS = { 1:1982, 2:1068, 3:300, 4:150 };
-const MC_SCORE = 58;
+const MC_SCORE = 63;
 const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?league=pga';
 
 // ═══════════════════════════════════════════════════
@@ -192,6 +192,11 @@ function parseScoreNumeric(s) {
   return parseInt(s.replace('+', '')) || 0;
 }
 
+// Helper to remove accents (Ludvig Åberg fix)
+function normalizeName(str) {
+  return (str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
 function parseESPN(data) {
   const rawPlayers = data?.events?.[0]?.competitions?.[0]?.competitors || [];
   if (!rawPlayers.length) throw new Error('API Sync Failed');
@@ -201,7 +206,6 @@ function parseESPN(data) {
     const type = s.type?.name?.toLowerCase() || "";
     const scoreStr = p.score?.displayValue || 'E';
     
-    // STRICT HOLE LOGIC: NO "R1", NO TIMESTAMPS. NUMBER ONLY OR "F".
     let thruLabel = '1';
     if (type.includes('final') || s.thru === 18) {
       thruLabel = 'F';
@@ -212,8 +216,8 @@ function parseESPN(data) {
     return {
       id: p.id,
       name: p.athlete.displayName,
-      firstName: (p.athlete.firstName || "").toLowerCase(),
-      lastName: (p.athlete.lastName || "").toLowerCase(),
+      firstName: (p.athlete.firstName || ""),
+      lastName: (p.athlete.lastName || ""),
       scoreNum: parseScoreNumeric(scoreStr),
       scorePar: scoreStr,
       thru: thruLabel,
@@ -244,15 +248,19 @@ function parseESPN(data) {
   return athletes;
 }
 
-// STRICT MATCHING: Both First and Last must align exactly
 function matchGolfer(entryName, lb) {
-  const eParts = entryName.toLowerCase().split(/\s+/);
+  const cleanEntry = normalizeName(entryName);
+  const eParts = cleanEntry.split(/\s+/);
   const eFirst = eParts[0];
   const eLast = eParts[eParts.length - 1];
 
   return lb.find(p => {
-    const firstMatch = p.firstName.includes(eFirst) || eFirst.includes(p.firstName);
-    const lastMatch = p.lastName === eLast;
+    const pFirst = normalizeName(p.firstName);
+    const pLast = normalizeName(p.lastName);
+    
+    // Check if Last Name matches exactly (normalized) and First Name is a subset
+    const lastMatch = pLast === eLast;
+    const firstMatch = pFirst.includes(eFirst) || eFirst.includes(pFirst);
     return firstMatch && lastMatch;
   }) || null;
 }
