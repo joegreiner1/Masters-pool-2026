@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Masters Pool 2026 — In Memory of Geoff Martyn</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green-deep:  #0d2e1e;
+      --green-mid:   #1a5436;
+      --gold:        #c9a84c;
+      --gold-light:  #e2c47a;
+      --cream:       #f5f0e4;
+      --cream-dark:  #e8e0cc;
+      --white:       #fdfbf6;
+      --red:         #c0392b;
+      --blue-soft:   #90caf9;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      background:var(--green-deep); color:var(--cream);
+      font-family:'Cormorant Garamond',Georgia,serif; font-size:16px; min-height:100vh;
+      background-image:
+        radial-gradient(ellipse at 20% 0%,  rgba(45,122,80,.25) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 100%, rgba(26,84,54,.3)  0%, transparent 60%);
+    }
+
+    /* HEADER */
+    header { text-align:center; padding:40px 24px 24px; border-bottom:1px solid rgba(201,168,76,.25); }
+    .flag-row { display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:16px; }
+    .flag-line { height:1px; width:70px; background:linear-gradient(to right,transparent,var(--gold)); }
+    .flag-line.r { background:linear-gradient(to left,transparent,var(--gold)); }
+    h1 { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,4.5vw,3rem); font-weight:700; color:var(--white); letter-spacing:.04em; }
+    h1 span { color:var(--gold); }
+    .subtitle { font-size:.95rem; font-weight:300; color:var(--cream-dark); margin-top:5px; letter-spacing:.12em; text-transform:uppercase; }
+    .memorial { margin-top:14px; display:inline-block; border:1px solid rgba(201,168,76,.4); border-radius:3px; padding:7px 20px; font-style:italic; font-size:.93rem; color:var(--gold-light); background:rgba(201,168,76,.07); }
+
+    /* STATUS BAR */
+    .status-bar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; max-width:1200px; margin:18px auto 0; padding:9px 18px; background:rgba(26,84,54,.35); border:1px solid rgba(201,168,76,.15); border-radius:4px; }
+    .status-pill { display:inline-flex; align-items:center; gap:7px; font-size:.8rem; letter-spacing:.06em; text-transform:uppercase; color:var(--cream-dark); }
+    .dot { width:8px; height:8px; border-radius:50%; background:#aaa; flex-shrink:0; }
+    .dot.live  { background:#4caf50; box-shadow:0 0 6px #4caf50; animation:pulse 2s infinite; }
+    .dot.error { background:var(--red); }
+    .dot.wait  { background:var(--gold); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .refresh-btn { background:transparent; border:1px solid rgba(201,168,76,.4); color:var(--gold); padding:4px 12px; border-radius:3px; cursor:pointer; font-family:'Cormorant Garamond',serif; font-size:.8rem; letter-spacing:.06em; text-transform:uppercase; transition:background .2s; }
+    .refresh-btn:hover { background:rgba(201,168,76,.12); }
+
+    /* MAIN */
+    main { max-width:1200px; margin:0 auto; padding:18px 12px 60px; }
+
+    /* PAYOUT BANNER */
+    .payout-banner { background:rgba(201,168,76,.1); border:1px solid rgba(201,168,76,.3); border-radius:6px; padding:12px 18px; margin-bottom:14px; }
+    .payout-title { font-family:'Playfair Display',serif; font-size:.9rem; color:var(--gold); letter-spacing:.06em; text-transform:uppercase; margin-bottom:7px; }
+    .payout-places { display:flex; flex-wrap:wrap; gap:6px 22px; margin-bottom:5px; }
+    .payout-item { font-size:.93rem; color:var(--cream-dark); }
+    .payout-item strong { color:var(--gold-light); }
+    .payout-note { font-size:.76rem; color:rgba(245,240,228,.4); margin-top:3px; }
+
+    /* RULES */
+    .rules-box { background:rgba(13,46,30,.6); border:1px solid rgba(201,168,76,.15); border-radius:6px; padding:11px 16px; margin-bottom:14px; font-size:.85rem; color:var(--cream-dark); line-height:1.75; }
+    .rules-box summary { color:var(--gold); letter-spacing:.06em; text-transform:uppercase; font-size:.8rem; list-style:none; cursor:pointer; }
+    .rules-box summary::-webkit-details-marker { display:none; }
+    .rules-body { margin-top:9px; }
+    .rules-body strong { color:var(--gold-light); }
+
+    /* META ROW */
+    .meta-row { display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .round-badge { display:inline-block; background:rgba(201,168,76,.15); border:1px solid rgba(201,168,76,.35); color:var(--gold); padding:4px 16px; font-size:.83rem; letter-spacing:.1em; text-transform:uppercase; border-radius:20px; }
+    .entry-count { font-size:.83rem; color:var(--cream-dark); }
+
+    /* TABS */
+    .tab-row { display:flex; margin-bottom:16px; border-bottom:1px solid rgba(201,168,76,.2); }
+    .tab-btn { background:transparent; border:none; border-bottom:2px solid transparent; color:var(--cream-dark); padding:8px 18px; cursor:pointer; font-family:'Cormorant Garamond',serif; font-size:.93rem; letter-spacing:.06em; text-transform:uppercase; transition:color .2s,border-color .2s; margin-bottom:-1px; }
+    .tab-btn:hover { color:var(--gold); }
+    .tab-btn.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+    /* MESSAGE BOX */
+    .message-box { text-align:center; padding:50px 20px; color:var(--cream-dark); font-size:1.05rem; }
+    .message-box .icon { font-size:2.6rem; margin-bottom:12px; }
+
+    /* SCOREBOARD TABLE */
+    .table-wrap { overflow-x:auto; border-radius:6px; border:1px solid rgba(201,168,76,.2); box-shadow:0 8px 32px rgba(0,0,0,.4); }
+    table { width:100%; border-collapse:collapse; font-family:'Cormorant Garamond',serif; }
+    thead th { background:rgba(13,46,30,.97); color:var(--gold); font-size:.72rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; padding:11px 12px; text-align:left; border-bottom:1px solid rgba(201,168,76,.3); white-space:nowrap; }
+    thead th.center { text-align:center; }
+    tbody tr { border-bottom:1px solid rgba(201,168,76,.08); transition:background .15s; }
+    tbody tr:hover { background:rgba(201,168,76,.06) !important; }
+    tbody tr:nth-child(even) { background:rgba(0,0,0,.14); }
+    tbody tr.rank-1 { background:rgba(201,168,76,.13) !important; }
+    tbody tr.rank-2 { background:rgba(180,180,180,.07) !important; }
+    tbody tr.rank-3 { background:rgba(184,115,51,.07) !important; }
+    tbody tr.rank-4 { background:rgba(100,160,100,.06) !important; }
+    td { padding:10px 12px; font-size:.93rem; color:var(--cream); vertical-align:middle; }
+    td.rank { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; color:var(--gold); text-align:center; width:44px; min-width:44px; }
+    td.rank.tied::before { content:'T'; font-size:.6rem; vertical-align:super; color:var(--cream-dark); margin-right:1px; }
+    td.owner { font-size:1rem; font-weight:600; color:var(--white); white-space:nowrap; min-width:130px; }
+    td.golfer { min-width:144px; }
+    .golfer-name { font-size:.88rem; color:var(--cream); display:block; white-space:nowrap; }
+    .golfer-pos { display:inline-block; margin-top:3px; font-size:.71rem; padding:2px 7px; border-radius:10px; letter-spacing:.03em; }
+    .pos-active   { background:rgba(76,175,80,.2);    color:#81c784; }
+    .pos-mc       { background:rgba(192,57,43,.2);    color:#e57373; }
+    .pos-wd       { background:rgba(150,150,150,.2);  color:#bbb; }
+    .pos-pending  { background:rgba(201,168,76,.15);  color:var(--gold); }
+    .pos-complete { background:rgba(100,180,255,.15); color:var(--blue-soft); }
+    td.total-score { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; text-align:center; color:var(--gold); min-width:64px; }
+    td.total-score.leading { color:#81c784; }
+    td.prize { font-size:.85rem; text-align:center; color:var(--gold-light); min-width:80px; font-weight:600; }
+
+    /* SIMILARITY */
+    .sim-section { margin-bottom:26px; }
+    .sim-heading { font-family:'Playfair Display',serif; font-size:1.08rem; color:var(--gold); border-bottom:1px solid rgba(201,168,76,.25); padding-bottom:6px; margin-bottom:11px; }
+    .sim-group { margin-bottom:9px; padding:10px 14px; background:rgba(13,46,30,.5); border:1px solid rgba(201,168,76,.12); border-radius:5px; }
+    .sim-group-header { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
+    .sim-entry { display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; padding:5px 0; border-bottom:1px solid rgba(201,168,76,.07); }
+    .sim-entry:last-child { border-bottom:none; }
+    .sim-owner { font-weight:600; color:var(--white); font-size:.9rem; min-width:160px; flex-shrink:0; }
+    .sim-rank { color:var(--gold); font-size:.76rem; margin-left:4px; }
+    .sim-pick { font-size:.81rem; padding:2px 9px; border-radius:12px; white-space:nowrap; }
+    .sim-pick.shared { background:rgba(201,168,76,.28); color:var(--gold-light); font-weight:600; }
+    .sim-pick.unique { background:rgba(255,255,255,.07); color:var(--cream-dark); }
+
+    /* LEGEND */
+    .legend { margin-top:14px; display:flex; flex-wrap:wrap; gap:12px; font-size:.75rem; color:var(--cream-dark); opacity:.8; }
+    .legend span { display:flex; align-items:center; gap:5px; }
+
+    /* FOOTER */
+    footer { text-align:center; padding:24px; border-top:1px solid rgba(201,168,76,.15); color:rgba(245,240,228,.35); font-size:.78rem; letter-spacing:.04em; }
+
+    @media (max-width:768px) {
+      header { padding:22px 10px 16px; }
+      td,thead th { padding:8px 6px; }
+      thead th { font-size:.63rem; }
+      td.golfer { min-width:108px; }
+      .golfer-name { font-size:.82rem; }
+      td.total-score { font-size:1.05rem; }
+      .tab-btn { padding:6px 10px; font-size:.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="flag-row">
+    <div class="flag-line"></div>
+    <span style="font-size:24px;">⛳</span>
+    <div class="flag-line r"></div>
+  </div>
+  <h1>Masters Pool <span>2026</span></h1>
+  <div class="subtitle">Augusta National · April 10–13</div>
+  <div class="memorial">In Memory of Geoff Martyn</div>
+
+  <div class="status-bar">
+    <div class="status-pill">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Loading…</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <span class="status-pill" id="lastUpdated"></span>
+      <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="payout-banner">
+    <div class="payout-title">💰 Prize Payouts — 70 Entries · $3,500 Pot</div>
+    <div class="payout-places">
+      <span class="payout-item"><strong>🥇 1st:</strong> $1,982</span>
+      <span class="payout-item"><strong>🥈 2nd:</strong> $1,068</span>
+      <span class="payout-item"><strong>🥉 3rd:</strong> $300</span>
+      <span class="payout-item"><strong>4th:</strong> $150</span>
+    </div>
+    <div class="payout-note">Ties split prize money equally between tied finishers</div>
+  </div>
+
+  <details class="rules-box">
+    <summary>▸ Pool Rules &amp; Scoring</summary>
+    <div class="rules-body">
+      <strong>Pick 4 golfers.</strong> Score = sum of Sunday finishing positions. Lowest total wins.<br>
+      <strong>Missed cut / WD:</strong> Player scores (# of finishers + 1) + 8. Example: 50 make cut → MC = 59.<br>
+      <strong>Ties:</strong> Tied entries share the same rank. Prize money split equally between tied finishers.
+    </div>
+  </details>
+
+  <div class="meta-row">
+    <span class="round-badge" id="roundBadge">Fetching live scores…</span>
+    <span class="entry-count">70 entries · $3,500 pot</span>
+  </div>
+
+
+
+  <div id="mainContent">
+    <div class="message-box"><div class="icon">⛳</div><div>Fetching live Masters scores…</div></div>
+  </div>
+
+  <div class="legend" id="legend">
+    <span><span class="golfer-pos pos-active">T5</span> Active</span>
+    <span><span class="golfer-pos pos-complete">3rd</span> Round complete</span>
+    <span><span class="golfer-pos pos-mc">MC</span> Missed cut</span>
+    <span><span class="golfer-pos pos-wd">WD</span> Withdrawn</span>
+    <span><span class="golfer-pos pos-pending">—</span> Not yet started</span>
+  </div>
+  <div id="debugBox" style="display:none;margin-top:14px;background:rgba(0,0,0,.4);border:1px solid rgba(201,168,76,.2);border-radius:4px;padding:10px 14px;font-size:.75rem;color:var(--cream-dark);word-break:break-all;">
+    <span style="color:var(--gold);text-transform:uppercase;letter-spacing:.06em;font-size:.72rem;">Debug — ESPN Response</span><br>
+    <span id="debugInfo">Waiting…</span>
+  </div>
+
+</main>
+
+<footer>Masters Pool 2026 · Honoring Geoff Martyn · Live scores via ESPN · Lowest combined finishing position wins</footer>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  ALL 70 ENTRIES — HARDCODED FROM SPREADSHEET
+//  Names normalized to match ESPN leaderboard
+// ═══════════════════════════════════════════════════
+const ALL_ENTRIES = [
+  { owner:'Toph Kirland',        golfers:['Xander Schauffele','Ludvig Aberg','Tommy Fleetwood','Cameron Young'] },
+  { owner:'Vince Caporuscio',    golfers:['Xander Schauffele','Cameron Young','Rory McIlroy','Ludvig Aberg'] },
+  { owner:'Devin Kennedy',       golfers:['Xander Schauffele','Matt Fitzpatrick','Tommy Fleetwood','Jon Rahm'] },
+  { owner:'Brian Hegenbart 4',   golfers:['Xander Schauffele','Akshay Bhatia','Cameron Young','Matt Fitzpatrick'] },
+  { owner:'Bill Nunley',         golfers:['Scottie Scheffler','Rory McIlroy','Jon Rahm','Bryson DeChambeau'] },
+  { owner:'Brendan Glavin',      golfers:['Scottie Scheffler','Bryson DeChambeau','Hideki Matsuyama','Justin Rose'] },
+  { owner:'Brian Bateh 1',       golfers:['Scottie Scheffler','Bryson DeChambeau','Rory McIlroy','Jon Rahm'] },
+  { owner:'Brian Bateh 2',       golfers:['Scottie Scheffler','Cameron Young','Jordan Spieth','Collin Morikawa'] },
+  { owner:'Brian Hegenbart 2',   golfers:['Scottie Scheffler','Xander Schauffele','Rory McIlroy','Jon Rahm'] },
+  { owner:'Brian Hegenbart 3',   golfers:['Scottie Scheffler','Ludvig Aberg','Bryson DeChambeau','Cameron Young'] },
+  { owner:'Chris Haddock',       golfers:['Scottie Scheffler','Rory McIlroy','Adam Scott','Jason Day'] },
+  { owner:'Chris Kemph',         golfers:['Scottie Scheffler','Rory McIlroy','Bryson DeChambeau','Patrick Cantlay'] },
+  { owner:'Dan Chudd',           golfers:['Scottie Scheffler','Bryson DeChambeau','Ludvig Aberg','Tommy Fleetwood'] },
+  { owner:'Dan Murphy',          golfers:['Scottie Scheffler','Jon Rahm','Patrick Reed','Xander Schauffele'] },
+  { owner:'Gary Mann',           golfers:['Scottie Scheffler','Justin Rose','Cameron Young','Tommy Fleetwood'] },
+  { owner:'Greg Carnivale 1',    golfers:['Scottie Scheffler','Rory McIlroy','Jon Rahm','Bryson DeChambeau'] },
+  { owner:'Greg Carnivale 2',    golfers:['Scottie Scheffler','Xander Schauffele','Ludvig Aberg','Jon Rahm'] },
+  { owner:'Jim McEnerny 2',      golfers:['Scottie Scheffler','Bryson DeChambeau','Hideki Matsuyama','Cameron Young'] },
+  { owner:'Jim McEnerny 1',      golfers:['Scottie Scheffler','Rory McIlroy','Xander Schauffele','Jon Rahm'] },
+  { owner:'KC Arns 1',           golfers:['Scottie Scheffler','Jon Rahm','Robert MacIntyre','Ludvig Aberg'] },
+  { owner:'Keith Simpson',       golfers:['Scottie Scheffler','Rory McIlroy','Jon Rahm','Xander Schauffele'] },
+  { owner:'Matt Maher',          golfers:['Scottie Scheffler','Ludvig Aberg','Cameron Young','Tommy Fleetwood'] },
+  { owner:'Matt Wesmiller 2',    golfers:['Scottie Scheffler','Ludvig Aberg','Akshay Bhatia','Bryson DeChambeau'] },
+  { owner:'Michael Paluzzi',     golfers:['Scottie Scheffler','Rory McIlroy','Bryson DeChambeau','Jon Rahm'] },
+  { owner:'Mike Maher',          golfers:['Scottie Scheffler','Matt Fitzpatrick','Robert MacIntyre','Jake Knapp'] },
+  { owner:'Musa Farmand',        golfers:['Scottie Scheffler','Bryson DeChambeau','Jon Rahm','Xander Schauffele'] },
+  { owner:'Patrick McNamara',    golfers:['Scottie Scheffler','Bryson DeChambeau','Rory McIlroy','Ludvig Aberg'] },
+  { owner:'Paul Benninghof',     golfers:['Scottie Scheffler','Jon Rahm','Xander Schauffele','Ludvig Aberg'] },
+  { owner:'Ryan Bateman',        golfers:['Scottie Scheffler','Ludvig Aberg','Jon Rahm','Xander Schauffele'] },
+  { owner:'Chris Cook 1',        golfers:['Scottie Scheffler','Ludvig Aberg','Xander Schauffele','Cameron Young'] },
+  { owner:'Chris Roberson',      golfers:['Scottie Scheffler','Xander Schauffele','Ludvig Aberg','Tommy Fleetwood'] },
+  { owner:'Jimmy Trinh 2',       golfers:['Scottie Scheffler','Jon Rahm','Bryson DeChambeau','Rory McIlroy'] },
+  { owner:'Joe Greiner 1',       golfers:['Scottie Scheffler','Tommy Fleetwood','Matt Fitzpatrick','Patrick Reed'] },
+  { owner:'Michael Cooper',      golfers:['Scottie Scheffler','Bryson DeChambeau','Jon Rahm','Justin Rose'] },
+  { owner:'Rick Philbin',        golfers:['Scottie Scheffler','Rory McIlroy','Bryson DeChambeau','Jon Rahm'] },
+  { owner:'Ryan Fannon',         golfers:['Scottie Scheffler','Bryson DeChambeau','Cameron Young','Tommy Fleetwood'] },
+  { owner:'Dillon Kirland',      golfers:['Scottie Scheffler','Xander Schauffele','Bryson DeChambeau','Jon Rahm'] },
+  { owner:'Jeremy Malcolm 1',    golfers:['Scottie Scheffler','Rory McIlroy','Cameron Young','J.J. Spaun'] },
+  { owner:'Eric Glowniak',       golfers:['Scottie Scheffler','Ludvig Aberg','Xander Schauffele','Corey Conners'] },
+  { owner:'Nate Wood',           golfers:['Scottie Scheffler','Xander Schauffele','Ludvig Aberg','Jon Rahm'] },
+  { owner:'Chris Madison 3',     golfers:['Scottie Scheffler','Jon Rahm','Jacob Bridgeman','Cameron Young'] },
+  { owner:'Paul Arns',           golfers:['Scottie Scheffler','Cameron Smith','Jordan Spieth','Matt Fitzpatrick'] },
+  { owner:'Dave Mornhinweg',     golfers:['Matt Fitzpatrick','Jon Rahm','Akshay Bhatia','Xander Schauffele'] },
+  { owner:'Chris Meighan',       golfers:['Justin Rose','Tommy Fleetwood','Ludvig Aberg','Viktor Hovland'] },
+  { owner:'Cesar Santana',       golfers:['Jon Rahm','Xander Schauffele','Cameron Young','Robert MacIntyre'] },
+  { owner:'Mike Losasso',        golfers:['Jon Rahm','Akshay Bhatia','Ludvig Aberg','Wyndham Clark'] },
+  { owner:'Amy Beth Roy',        golfers:['Cameron Young','Xander Schauffele','Ludvig Aberg','Maverick McNealy'] },
+  { owner:'Chris Madison 2',     golfers:['Cameron Young','Xander Schauffele','Justin Rose','Rory McIlroy'] },
+  { owner:'Nick Canatsey',       golfers:['Cameron Young','Matt Fitzpatrick','Xander Schauffele','Justin Rose'] },
+  { owner:'Joe Greiner 2',       golfers:['Bryson DeChambeau','Xander Schauffele','Jon Rahm','Cameron Young'] },
+  { owner:'Gary Felice',         golfers:['Bryson DeChambeau','Xander Schauffele','Jon Rahm','Sungjae Im'] },
+  { owner:'Matt Wesmiller 1',    golfers:['Bryson DeChambeau','Xander Schauffele','Matt Fitzpatrick','Patrick Reed'] },
+  { owner:'Chad Hess 1',         golfers:['Bryson DeChambeau','Xander Schauffele','Jordan Spieth','Jacob Bridgeman'] },
+  { owner:'Chad Hess 3',         golfers:['Bryson DeChambeau','Xander Schauffele','Patrick Reed','Jacob Bridgeman'] },
+  { owner:'KC Arns 2',           golfers:['Bryson DeChambeau','Rory McIlroy','Xander Schauffele','Tommy Fleetwood'] },
+  { owner:'Chad Hess 2',         golfers:['Bryson DeChambeau','Justin Rose','Matt Fitzpatrick','Xander Schauffele'] },
+  { owner:'Robbie Salem',        golfers:['Bryson DeChambeau','Cameron Young','Ludvig Aberg','Matt Fitzpatrick'] },
+  { owner:'Brian Hegenbart 1',   golfers:['Bryson DeChambeau','Xander Schauffele','Ludvig Aberg','Chris Gotterup'] },
+  { owner:'Chris Cook 2',        golfers:['Bryson DeChambeau','Ludvig Aberg','Tommy Fleetwood','Xander Schauffele'] },
+  { owner:'Jeremy Malcolm 2',    golfers:['Bryson DeChambeau','Xander Schauffele','Ludvig Aberg','Tommy Fleetwood'] },
+  { owner:'Joe Murphy',          golfers:['Bryson DeChambeau','Ludvig Aberg','Tommy Fleetwood','Patrick Reed'] },
+  { owner:'Jack McCrery',        golfers:['Bryson DeChambeau','Jon Rahm','Tommy Fleetwood','Patrick Reed'] },
+  { owner:'Marquis Green',       golfers:['Bryson DeChambeau','Jacob Bridgeman','Xander Schauffele','Jon Rahm'] },
+  { owner:'Chris Madison 1',     golfers:['Bryson DeChambeau','Matt Fitzpatrick','Ludvig Aberg','Cameron Young'] },
+  { owner:'Josh Meighan',        golfers:['Bryson DeChambeau','Cameron Young','Matt Fitzpatrick','Cameron Young'] },
+  { owner:'Derek Toman',         golfers:['Bryson DeChambeau','Ludvig Aberg','Justin Rose','Tommy Fleetwood'] },
+  { owner:'Jimmy Trinh 1',       golfers:['Bryson DeChambeau','Jon Rahm','Ludvig Aberg','Matt Fitzpatrick'] },
+  { owner:'Jason Paul',          golfers:['Bryson DeChambeau','Justin Rose','Ludvig Aberg','Rory McIlroy'] },
+  { owner:'Ash Johnston',        golfers:['Bryson DeChambeau','Patrick Reed','Matt Fitzpatrick','Xander Schauffele'] },
+  { owner:'John Durastanti',     golfers:['Bryson DeChambeau','Cameron Young','Justin Rose','Xander Schauffele'] },
+];
+
+// ═══════════════════════════════════════════════════
+//  FIXED PAYOUTS (70 entries confirmed)
+// ═══════════════════════════════════════════════════
+//  ESPN FETCH — simple, proven approach
+// ═══════════════════════════════════════════════════
+const ESPN_URL   = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?league=pga';
+const PROXY_URL  = 'https://api.allorigins.win/get?url=';
+
+async function fetchESPN() {
+  // Try direct first
+  try {
+    const r = await fetch(ESPN_URL);
+    if (r.ok) return parseESPN(await r.json());
+  } catch(e) { console.warn('Direct blocked (expected), trying proxy...'); }
+
+  // Fallback: allorigins proxy (confirmed working previously)
+  const r = await fetch(PROXY_URL + encodeURIComponent(ESPN_URL));
+  if (!r.ok) throw new Error('Proxy returned HTTP ' + r.status);
+  const wrapper = await r.json();
+  return parseESPN(JSON.parse(wrapper.contents));
+}
+
+// ═══════════════════════════════════════════════════
+//  PARSE ESPN RESPONSE
+//  Confirmed structure: {events:[{competitions:[{competitors:[91]}]}]}
+//  Need to identify correct position field - debug box shows it
+// ═══════════════════════════════════════════════════
+function parseESPN(data) {
+  const event    = data?.events?.[0];
+  const players  = event?.competitions?.[0]?.competitors || [];
+
+  if (!players.length) {
+    dbg('ERROR: 0 players found. Top-level keys: ' + Object.keys(data||{}).join(', '));
+    return { players:[], roundInfo:'No data', finisherCount:0 };
+  }
+
+  // Show ALL keys from first player so we can see exactly what ESPN returns
+  const s = players[0];
+  dbg(players.length + ' players | keys: ' + Object.keys(s).join(', ') +
+    ' | athlete.keys: ' + Object.keys(s.athlete||{}).join(', ') +
+    ' | status.keys: ' + Object.keys(s.status||{}).join(', '));
+
+  const parsed = players.map(p => {
+    const name = p?.athlete?.displayName || p?.athlete?.shortName || 'Unknown';
+
+    // Try every possible position field — log which ones have values
+    const order    = p?.order;           // numeric rank?
+    const posDisp  = p?.position?.displayValue; // "T1","5","--"?
+    const posId    = p?.position?.id;    // numeric id?
+    const sortOrd  = p?.sortOrder;       // sort order?
+
+    // Use first non-zero numeric value we find
+    const numPos = (typeof order === 'number' && order > 0)   ? order
+                 : (typeof posId === 'number' && posId > 0)   ? posId
+                 : (typeof sortOrd === 'number' && sortOrd > 0) ? sortOrd
+                 : parseInt((posDisp||'').replace(/[^0-9]/g,''),10) || 0;
+
+    const displayPos = (posDisp && posDisp !== '--') ? posDisp
+                     : numPos ? String(numPos) : '--';
+
+    // Thru holes
+    const thruVal  = p?.status?.thru ?? (Array.isArray(p?.linescores) ? p.linescores.length : null);
+    const statName = (p?.status?.type?.name || '').toLowerCase();
+    let thru = '';
+    if (statName.includes('complete') || statName.includes('final') || thruVal === 18) thru = 'F';
+    else if (typeof thruVal === 'number' && thruVal > 0) thru = String(thruVal);
+
+    let status = 'active';
+    if (statName.includes('cut') || statName.includes('mc'))           status = 'mc';
+    else if (statName.includes('withdraw') || statName.includes('wd')) status = 'wd';
+    else if (thru === 'F')                                              status = 'complete';
+    else if (!numPos && !thru)                                          status = 'pending';
+
+    const scorePar = p?.score?.displayValue || '';
+    return { name, displayPos, numPos, status, thru, scorePar };
+  });
+
+  const finisherCount = parsed.filter(p => p.status !== 'mc' && p.status !== 'wd').length;
+  const period    = event?.competitions?.[0]?.status?.period || event?.status?.period;
+  const roundInfo = period ? 'Round ' + period + ' · In Progress' : 'Masters Tournament 2026';
+  return { players: parsed, roundInfo, finisherCount };
+}
+
+function dbg(msg) {
+  console.log(msg);
+  const el = document.getElementById('debugInfo');
+  const bx = document.getElementById('debugBox');
+  if (el) el.textContent = msg;
+  if (bx) bx.style.display = 'block';
+}
+
+// ═══════════════════════════════════════════════════
+//  NAME MATCHING
+// ═══════════════════════════════════════════════════
+function norm(s) {
+  return (s||'').toLowerCase().normalize('NFD')
+    .replace(/[̀-ͯ]/g,'').replace(/[^a-z\s]/g,'').trim();
+}
+function matchGolfer(pickName, lb) {
+  const p = norm(pickName), pLast = p.split(/\s+/).pop();
+  return lb.find(x => norm(x.name) === p)
+      || lb.find(x => norm(x.name).split(/\s+/).pop() === pLast)
+      || null;
+}
+
+// ═══════════════════════════════════════════════════
+//  SCORING  — MC/WD: (finishers+1)+8
+// ═══════════════════════════════════════════════════
+function mcScore(fc) { return (fc + 1) + 8; }
+
+function calculateScores(leaderboard, finisherCount) {
+  return ALL_ENTRIES.map(entry => {
+    const resolved = entry.golfers.map(gName => {
+      const m = matchGolfer(gName, leaderboard);
+      if (!m) return { name:gName, displayPos:'—', scorePos:0, status:'pending', thru:'' };
+      const scorePos = (m.status==='mc'||m.status==='wd') ? mcScore(finisherCount) : m.numPos;
+      return { ...m, scorePos };
+    });
+    const allPending = resolved.every(g => g.status === 'pending');
+    const total = allPending ? 0 : resolved.reduce((s,g) => s+(g.scorePos||0), 0);
+    return { owner:entry.owner, golfers:resolved, total };
+  });
+}
+
+function rankEntries(entries) {
+  const sorted = [...entries].sort((a,b) => {
+    if (!a.total&&!b.total) return 0;
+    if (!a.total) return 1; if (!b.total) return -1;
+    return a.total - b.total;
+  });
+  let rank = 1;
+  return sorted.map((e,i) => {
+    if (i>0 && e.total===sorted[i-1].total) { e.rank=sorted[i-1].rank; e.tied=true; }
+    else { e.rank=rank; e.tied=false; }
+    rank = i+2; return e;
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  PRIZES
+// ═══════════════════════════════════════════════════
+const PAYOUTS = {1:1982, 2:1068, 3:300, 4:150};
+function prizeFor(rank) {
+  if (rank > 4) return '';
+  const tied = globalRanked.filter(e => e.rank === rank);
+  if (tied.length === 1) return '$' + PAYOUTS[rank].toLocaleString();
+  let sum = 0;
+  for (let r=rank; r<rank+tied.length; r++) if (PAYOUTS[r]) sum += PAYOUTS[r];
+  return '$' + Math.round(sum/tied.length).toLocaleString() + ' (split)';
+}
+
+// ═══════════════════════════════════════════════════
+//  STATE & RENDER
+// ═══════════════════════════════════════════════════
+function posClass(s) {
+  return {mc:'pos-mc',wd:'pos-wd',pending:'pos-pending',complete:'pos-complete'}[s]||'pos-active';
+}
+function posLabel(g) {
+  if (g.status==='mc') return 'MC';
+  if (g.status==='wd') return 'WD';
+  if (g.status==='pending') return '—';
+  const score = g.scorePar || '';
+  const pos   = g.displayPos || '—';
+  const hole  = g.thru ? (g.thru==='F' ? 'F' : g.thru) : '';
+  return [score, pos, hole].filter(Boolean).join(' · ');
+}
+
+function renderLeaderboard(ranked) {
+  const rows = ranked.map(e => {
+    const rc = `<td class="rank${e.tied?' tied':''}">${e.rank}</td>`;
+    const oc = `<td class="owner">${e.owner}</td>`;
+    const gc = e.golfers.map(g => `<td class="golfer">
+      <span class="golfer-name">${g.name}</span>
+      <span class="golfer-pos ${posClass(g.status)}">${posLabel(g)}</span>
+    </td>`).join('');
+    const sc = `<td class="total-score${e.rank===1?' leading':''}">${e.total||'—'}</td>`;
+    const pz = `<td class="prize">${prizeFor(e.rank)}</td>`;
+    return `<tr${e.rank<=4?` class="rank-${e.rank}"`:''}>${rc}${oc}${gc}${sc}${pz}</tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr>
+      <th class="center">Rank</th><th>Entry</th>
+      <th>Golfer 1</th><th>Golfer 2</th><th>Golfer 3</th><th>Golfer 4</th>
+      <th class="center">Score</th><th class="center">Prize</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function setStatus(cls,txt) {
+  document.getElementById('statusDot').className = 'dot ' + cls;
+  document.getElementById('statusText').textContent = txt;
+}
+function stampTime() {
+  document.getElementById('lastUpdated').textContent =
+    'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+let globalRanked = [];
+
+async function loadAll() {
+  setStatus('wait', 'Fetching live scores…');
+  try {
+    const espn    = await fetchESPN();
+    const entries = calculateScores(espn.players, espn.finisherCount);
+    globalRanked  = rankEntries(entries);
+    document.getElementById('roundBadge').textContent = espn.roundInfo;
+    document.getElementById('mainContent').innerHTML  = renderLeaderboard(globalRanked);
+    setStatus('live', 'Live · auto-refreshing every 5 min');
+    stampTime();
+  } catch(err) {
+    console.error(err);
+    setStatus('error', err.message);
+    document.getElementById('mainContent').innerHTML = `
+      <div class="message-box">
+        <div class="icon">⚠️</div>
+        <div style="margin-bottom:12px;">${err.message}</div>
+        <button class="refresh-btn" onclick="loadAll()">↻ Try again</button>
+      </div>`;
+  }
+}
+
+loadAll();
+setInterval(loadAll, 5*60*1000);
+
+</script>
+</body>
+</html>
