@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masters Pool 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --green: #0d2e1e; --gold: #c9a84c; --cream: #f5f0e4; --white: #ffffff; }
+    body { background: var(--green); color: var(--cream); font-family: 'Cormorant Garamond', serif; margin: 0; padding: 10px; }
+    header { text-align: center; padding: 20px 0; border-bottom: 1px solid rgba(201,168,76,0.3); }
+    h1 { font-family: 'Playfair Display', serif; color: var(--white); margin: 0; }
+    .status { text-align: center; padding: 10px; font-size: 0.8rem; color: var(--gold); }
+    
+    main { max-width: 1100px; margin: 20px auto; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 800px; background: rgba(0,0,0,0.2); }
+    th { text-align: left; padding: 12px; border-bottom: 2px solid var(--gold); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; }
+    td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+    
+    .rank-col { font-weight: bold; color: var(--gold); width: 40px; text-align: center; }
+    .owner-col { font-weight: 600; width: 150px; color: var(--white); }
+    
+    /* 3-Row Golfer Display */
+    .g-container { line-height: 1.2; }
+    .g-name { display: block; font-weight: 600; color: var(--white); font-size: 0.9rem; margin-bottom: 2px; }
+    .g-score { display: block; font-size: 0.85rem; color: var(--gold); }
+    .g-pos { display: block; font-size: 0.8rem; opacity: 0.6; font-style: italic; }
+    
+    .total-col { font-family: 'Playfair Display', serif; font-size: 1.4rem; text-align: center; color: var(--gold); font-weight: 700; }
+    .mc { color: #e57373 !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Masters Pool 2026</h1>
+  <div style="font-size: 0.9rem; margin-top:5px; color: var(--gold);">In Memory of Geoff Martyn</div>
+</header>
+
+<div class="status" id="statusLine">Initializing Sync...</div>
+
+<main id="board">
+  <div style="text-align:center; padding:50px;">⛳ Loading Live Scores...</div>
+</main>
+
+<script>
+const ESPN_API = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?league=pga';
+const PROXY = 'https://api.allorigins.win/get?url=';
+const ALL_ENTRIES = [
+  { owner:'Gary Mann', golfers:['Scottie Scheffler','Justin Rose','Cameron Young','Tommy Fleetwood'] },
+  { owner:'Joe Greiner 1', golfers:['Scottie Scheffler','Tommy Fleetwood','Matt Fitzpatrick','Patrick Reed'] },
+  { owner:'Matt Maher', golfers:['Scottie Scheffler','Ludvig Aberg','Cameron Young','Tommy Fleetwood'] },
+  { owner:'Chris Madison 2', golfers:['Cameron Young','Xander Schauffele','Justin Rose','Rory McIlroy'] },
+  { owner:'Chris Haddock', golfers:['Scottie Scheffler','Rory McIlroy','Adam Scott','Jason Day'] },
+  { owner:'Brian Bateh 2', golfers:['Scottie Scheffler','Cameron Young','Jordan Spieth','Collin Morikawa'] },
+  { owner:'Nick Canatsey', golfers:['Cameron Young','Matt Fitzpatrick','Xander Schauffele','Justin Rose'] },
+  { owner:'Jeremy Malcolm 1', golfers:['Scottie Scheffler','Rory McIlroy','Cameron Young','J.J. Spaun'] },
+  { owner:'Vince Caporuscio', golfers:['Xander Schauffele','Cameron Young','Rory McIlroy','Ludvig Aberg'] },
+  { owner:'Chris Madison 3', golfers:['Scottie Scheffler','Jon Rahm','Jacob Bridgeman','Cameron Young'] },
+  { owner:'Bill Nunley', golfers:['Scottie Scheffler','Rory McIlroy','Jon Rahm','Bryson DeChambeau'] },
+  { owner:'Amy Beth Roy', golfers:['Cameron Young','Xander Schauffele','Ludvig Aberg','Maverick McNealy'] },
+  { owner:'Brian Hegenbart 3', golfers:['Scottie Scheffler','Ludvig Aberg','Bryson DeChambeau','Cameron Young'] },
+  { owner:'Gary Felice', golfers:['Bryson DeChambeau','Xander Schauffele','Jon Rahm','Sungjae Im'] },
+  { owner:'Dan Murphy', golfers:['Scottie Scheffler','Jon Rahm','Patrick Reed','Xander Schauffele'] },
+  { owner:'Rob Salem', golfers:['Bryson DeChambeau','Cameron Young','Ludvig Aberg','Matt Fitzpatrick'] },
+  { owner:'Dave Mornhinweg', golfers:['Matt Fitzpatrick','Jon Rahm','Akshay Bhatia','Xander Schauffele'] },
+  { owner:'KC Arns 2', golfers:['Bryson DeChambeau','Rory McIlroy','Xander Schauffele','Tommy Fleetwood'] },
+  { owner:'Chris Madison 1', golfers:['Bryson DeChambeau','Matt Fitzpatrick','Ludvig Aberg','Cameron Young'] },
+  { owner:'Keith Simpson', golfers:['Scottie Scheffler','Rory McIlroy','Jon Rahm','Xander Schauffele'] },
+  { owner:'Chad Hess 1', golfers:['Bryson DeChambeau','Xander Schauffele','Jordan Spieth','Jacob Bridgeman'] },
+  { owner:'Brendan Glavin', golfers:['Scottie Scheffler','Bryson DeChambeau','Hideki Matsuyama','Justin Rose'] },
+  { owner:'Nate Wood', golfers:['Scottie Scheffler','Xander Schauffele','Ludvig Aberg','Jon Rahm'] },
+  { owner:'Paul Arns', golfers:['Scottie Scheffler','Cameron Smith','Jordan Spieth','Matt Fitzpatrick'] },
+  { owner:'Jim McEnerny 1', golfers:['Scottie Scheffler','Rory McIlroy','Xander Schauffele','Jon Rahm'] },
+  { owner:'Jimmy Trinh 1', golfers:['Bryson DeChambeau','Jon Rahm','Ludvig Aberg','Matt Fitzpatrick'] },
+  { owner:'Dillon Kirland', golfers:['Scottie Scheffler','Xander Schauffele','Bryson DeChambeau','Jon Rahm'] },
+  { owner:'Greg Carnivale 2', golfers:['Scottie Scheffler','Xander Schauffele','Ludvig Aberg','Jon Rahm'] },
+  { owner:'Jimmy Trinh 2', golfers:['Scottie Scheffler','Jon Rahm','Bryson DeChambeau','Rory McIlroy'] },
+  { owner:'Dan Chudd', golfers:['Scottie Scheffler','Bryson DeChambeau','Ludvig Aberg','Tommy Fleetwood'] },
+  { owner:'Derek Toman', golfers:['Bryson DeChambeau','Ludvig Aberg','Justin Rose','Tommy Fleetwood'] },
+  { owner:'Chad Hess 2', golfers:['Bryson DeChambeau','Justin Rose','Matt Fitzpatrick','Xander Schauffele'] },
+  { owner:'Cesar Santana', golfers:['Jon Rahm','Xander Schauffele','Cameron Young','Robert MacIntyre'] },
+  { owner:'Matt Wesmiller 2', golfers:['Scottie Scheffler','Ludvig Aberg','Akshay Bhatia','Bryson DeChambeau'] },
+  { owner:'Michael Cooper', golfers:['Scottie Scheffler','Bryson DeChambeau','Jon Rahm','Justin Rose'] },
+  { owner:'Rick Philbin', golfers:['Scottie Scheffler','Rory McIlroy','Bryson DeChambeau','Jon Rahm'] },
+  { owner:'Brian Bateh 1', golfers:['Scottie Scheffler','Bryson DeChambeau','Rory McIlroy','Jon Rahm'] },
+  { owner:'Joe Greiner 2', golfers:['Bryson DeChambeau','Xander Schauffele','Jon Rahm','Cameron Young'] },
+  { owner:'Chris Cook 1', golfers:['Scottie Scheffler','Ludvig Aberg','Xander Schauffele','Cameron Young'] },
+  { owner:'Marquis Green', golfers:['Bryson DeChambeau','Jacob Bridgeman','Xander Schauffele','Jon Rahm'] },
+  { owner:'Michael Paluzzi', golfers:['Scottie Scheffler','Rory McIlroy','Bryson DeChambeau','Jon Rahm'] },
+  { owner:'Ash Johnston', golfers:['Bryson DeChambeau','Patrick Reed','Matt Fitzpatrick','Xander Schauffele'] },
+  { owner:'Chris Meighan', golfers:['Justin Rose','Tommy Fleetwood','Ludvig Aberg','Viktor Hovland'] },
+  { owner:'Jack McCrery', golfers:['Bryson DeChambeau','Jon Rahm','Tommy Fleetwood','Patrick Reed'] },
+  { owner:'Musa Farmand', golfers:['Scottie Scheffler','Bryson DeChambeau','Jon Rahm','Xander Schauffele'] },
+  { owner:'Eric Glowniak', golfers:['Scottie Scheffler','Ludvig Aberg','Xander Schauffele','Corey Conners'] },
+  { owner:'Greg Carnivale 1', golfers:['Scottie Scheffler','Rory McIlroy','Jon Rahm','Bryson DeChambeau'] },
+  { owner:'Jason Paul', golfers:['Bryson DeChambeau','Justin Rose','Ludvig Aberg','Rory McIlroy'] },
+  { owner:'Jim McEnerny 2', golfers:['Scottie Scheffler','Bryson DeChambeau','Hideki Matsuyama','Cameron Young'] },
+  { owner:'Chris Kemph', golfers:['Scottie Scheffler','Rory McIlroy','Bryson DeChambeau','Patrick Cantlay'] },
+  { owner:'Brian Hegenbart 1', golfers:['Bryson DeChambeau','Xander Schauffele','Ludvig Aberg','Chris Gotterup'] },
+  { owner:'Matt Wesmiller 1', golfers:['Bryson DeChambeau','Xander Schauffele','Matt Fitzpatrick','Patrick Reed'] }
+];
+
+async function load() {
+  const status = document.getElementById('statusLine');
+  try {
+    const resp = await fetch(PROXY + encodeURIComponent(ESPN_API + '&t=' + Date.now()));
+    const json = await resp.json();
+    
+    // Hardened Parsing: Don't parse if it's already an object
+    const data = (typeof json.contents === 'string') ? JSON.parse(json.contents) : json.contents;
+    const athletes = data.events[0].competitions[0].competitors;
+
+    const lb = athletes.map(p => {
+      // THE SCOTTIE FIX: Look for 'toPar' in stats array for stable -7
+      const stats = p.statistics || [];
+      const toParStat = stats.find(s => s.name === "toPar" || s.name === "totalRelPar");
+      const score = toParStat ? toParStat.displayValue : (p.score?.displayValue || 'E');
+      
+      const type = p.status?.type?.name?.toLowerCase() || "";
+      const isMC = type.includes('cut') || type.includes('mc') || type.includes('wd');
+
+      return {
+        name: p.athlete.displayName,
+        score: score,
+        strokes: p.score?.value || 0,
+        pos: p.position?.displayValue || '--',
+        thru: p.status?.thru || 'F',
+        isMC: isMC
+      };
+    });
+
+    // Rank Calculation (Manual backup for API lag)
+    const active = lb.filter(a => !a.isMC).sort((a,b) => a.strokes - b.strokes);
+    let r = 1;
+    active.forEach((a, i) => {
+      if (i > 0 && a.strokes !== active[i-1].strokes) r = i + 1;
+      a.calcRank = r;
+    });
+    lb.forEach(a => { if(a.isMC) a.calcRank = 63; });
+
+    const scored = ALL_ENTRIES.map(entry => {
+      const gData = entry.golfers.map(name => {
+        // Simplified Match: Check if API name includes your entry last name
+        const match = lb.find(p => p.name.toLowerCase().includes(name.toLowerCase().split(' ').pop()));
+        return match ? {...match, entryName: name} : {entryName: name, score: '??', pos: '--', thru: '--', calcRank: 99};
+      });
+      return { owner: entry.owner, golfers: gData, total: gData.reduce((s,g) => s + g.calcRank, 0) };
+    });
+
+    render(scored.sort((a,b) => a.total - b.total));
+    status.innerText = 'Live Sync Active • Updated ' + new Date().toLocaleTimeString();
+  } catch (e) {
+    status.innerText = 'Sync Error. Check connection.';
+    console.error(e);
+  }
+}
+
+function render(data) {
+  let html = '<table><thead><tr><th>Rank</th><th>Entry</th><th>Golfer 1</th><th>Golfer 2</th><th>Golfer 3</th><th>Golfer 4</th><th style="text-align:center">Total</th></tr></thead><tbody>';
+  data.forEach((e, i) => {
+    const tied = i > 0 && e.total === data[i-1].total;
+    html += `<tr>
+      <td class="rank-col">${tied ? '' : (i+1)}</td>
+      <td class="owner-col">${e.owner}</td>
+      ${e.golfers.map(g => `
+        <td>
+          <div class="g-container">
+            <span class="g-name ${g.isMC?'mc':''}">${g.entryName}</span>
+            <span class="g-score ${g.isMC?'mc':''}">${g.isMC ? 'MC' : g.score + ' · ' + g.thru}</span>
+            <span class="g-pos ${g.isMC?'mc':''}">${g.isMC ? 'CUT' : g.pos}</span>
+          </div>
+        </td>
+      `).join('')}
+      <td class="total-col">${e.total}</td>
+    </tr>`;
+  });
+  document.getElementById('board').innerHTML = html + '</tbody></table>';
+}
+
+load();
+setInterval(load, 120000);
+</script>
+</body>
+</html>
