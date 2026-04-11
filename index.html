@@ -186,16 +186,27 @@ const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard
 //  DATA ENGINE
 // ═══════════════════════════════════════════════════
 
-function parseScoreNumeric(s) {
-  if (!s) return 0;
-  const clean = s.toString().toLowerCase().trim();
+function normalizeName(str) {
+  return (str || "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+}
+
+function parseScoreNumeric(val, display) {
+  // If numeric value exists, it's the most reliable live source
+  if (val !== undefined && val !== null) {
+    const n = parseInt(val);
+    if (!isNaN(n)) return n;
+  }
+  if (!display) return 0;
+  const clean = display.toString().toLowerCase().trim();
   if (clean === 'e' || clean === 'even' || clean === '0') return 0;
   if (clean === '--' || clean === 'cut' || clean === 'wd') return 999;
   return parseInt(clean.replace('+', '')) || 0;
 }
 
-function normalizeName(str) {
-  return (str || "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+function formatScore(num) {
+  if (num === 0) return 'E';
+  if (num > 0) return '+' + num;
+  return num.toString();
 }
 
 function parseESPN(data) {
@@ -204,181 +215,3 @@ function parseESPN(data) {
 
   let athletes = rawPlayers.filter(p => p.athlete).map(p => {
     const s = p.status || {};
-    const type = s.type?.name?.toLowerCase() || "";
-    
-    // Improved Score Selection: Use displayValue but check statistics for backup
-    let scoreStr = p.score?.displayValue;
-    if (!scoreStr || scoreStr === '--') {
-       const statTotal = p.statistics?.find(st => st.name === "totalScore")?.displayValue;
-       scoreStr = statTotal || 'E';
-    }
-    
-    let thruLabel = '1';
-    if (type.includes('final') || s.thru === 18) {
-      thruLabel = 'F';
-    } else if (s.thru > 0) {
-      thruLabel = String(s.thru);
-    }
-
-    return {
-      id: p.id,
-      displayName: p.athlete.displayName,
-      firstName: (p.athlete.firstName || ""),
-      lastName: (p.athlete.lastName || ""),
-      scoreNum: parseScoreNumeric(scoreStr),
-      scorePar: scoreStr,
-      thru: thruLabel,
-      isMC: type.includes('cut') || type.includes('mc') || type.includes('wd')
-    };
-  });
-
-  const active = athletes.filter(a => !a.isMC).sort((a,b) => a.scoreNum - b.scoreNum);
-  let currentRank = 1;
-  for (let i = 0; i < active.length; i++) {
-    if (i > 0 && active[i].scoreNum !== active[i-1].scoreNum) {
-      currentRank = i + 1;
-    }
-    active[i].calculatedRank = currentRank;
-    const tied = (i > 0 && active[i].scoreNum === active[i-1].scoreNum) || 
-                 (i < active.length - 1 && active[i].scoreNum === active[i+1].scoreNum);
-    active[i].displayRank = (tied ? 'T' : '') + currentRank;
-  }
-
-  athletes.forEach(a => {
-    if (a.isMC) {
-      a.calculatedRank = MC_SCORE;
-      a.displayRank = 'MC';
-      a.thru = 'F';
-    }
-  });
-
-  return athletes;
-}
-
-function matchGolfer(entryName, lb) {
-  const cleanEntry = normalizeName(entryName);
-  const eParts = cleanEntry.split(/\s+/);
-  const eFirst = eParts[0];
-  const eLast = eParts[eParts.length - 1];
-
-  return lb.find(p => {
-    const pFirst = normalizeName(p.firstName);
-    const pLast = normalizeName(p.lastName);
-    const pFull = normalizeName(p.displayName);
-    
-    // Primary Match: Check First/Last
-    const firstMatch = pFirst.includes(eFirst) || eFirst.includes(pFirst);
-    const lastMatch = pLast === eLast || pLast.includes(eLast);
-    if (firstMatch && lastMatch) return true;
-
-    // Fallback Match: Check Full Display Name (handles Scottie/Scott variations)
-    if (pFull === cleanEntry || pFull.includes(cleanEntry) || cleanEntry.includes(pFull)) return true;
-    
-    return false;
-  }) || null;
-}
-
-function calculateScores(lb) {
-  return ALL_ENTRIES.map(entry => {
-    const golfers = entry.golfers.map(gName => {
-      const m = matchGolfer(gName, lb);
-      // Default to -- if no match is found to make it visible
-      if (!m) return { name:gName, displayRank:'--', calculatedRank:99, thru:'--', scorePar:'--', isMC:false };
-      return { ...m, name: gName }; // Keep entry name for consistent UI
-    });
-    return { owner: entry.owner, golfers, total: golfers.reduce((s, g) => s + g.calculatedRank, 0) };
-  });
-}
-
-// ═══════════════════════════════════════════════════
-//  FETCH & UI
-// ═══════════════════════════════════════════════════
-
-async function fetchWithFailover() {
-  const t = Date.now();
-  const url = `${ESPN_URL}&t=${t}`; 
-  const proxies = [
-    'https://corsproxy.io/?',
-    'https://api.allorigins.win/get?url=',
-    'https://api.codetabs.com/v1/proxy?quest='
-  ];
-
-  for (const proxy of proxies) {
-    try {
-      const fullUrl = proxy + encodeURIComponent(url);
-      const resp = await fetch(fullUrl, { cache: 'no-store' });
-      if (!resp.ok) continue;
-      
-      let data = await resp.json();
-      if (data.contents) data = JSON.parse(data.contents);
-      
-      return parseESPN(data);
-    } catch(e) { console.warn('Rotating Proxy...'); }
-  }
-  throw new Error('Offline');
-}
-
-async function loadAll() {
-  const dot = document.getElementById('statusDot');
-  const txt = document.getElementById('statusText');
-  dot.className = 'dot wait';
-  txt.textContent = 'Syncing...';
-  try {
-    const athletes = await fetchWithFailover();
-    const scored = calculateScores(athletes);
-    const ranked = scored.sort((a,b) => a.total - b.total);
-    render(ranked);
-    dot.className = 'dot live';
-    txt.textContent = 'Live Data';
-    document.getElementById('lastUpdated').textContent = 'Synced: ' + new Date().toLocaleTimeString();
-  } catch(e) {
-    console.error(e);
-    dot.className = 'dot';
-    txt.textContent = 'Signal Offline';
-  }
-}
-
-function render(ranked) {
-  const rows = ranked.map((e, idx) => {
-    const currentPlace = (idx > 0 && e.total === ranked[idx-1].total) ? ranked[idx-1].place : idx + 1;
-    e.place = currentPlace;
-
-    const golfersHtml = e.golfers.map(g => {
-      const sClass = g.scorePar.startsWith('-') ? 'under' : (g.scorePar === 'E' || g.scorePar === 'Even') ? 'even' : 'over';
-      const pClass = g.isMC ? 'mc' : 'active';
-      return `<td>
-        <span class="golfer-name">${g.name}</span>
-        <div class="golfer-stats">
-          <span class="g-score ${sClass}">${g.scorePar}</span>
-          <span class="g-thru">${g.thru}</span>
-          <span class="g-pos ${pClass}">${g.displayRank}</span>
-        </div>
-      </td>`;
-    }).join('');
-
-    const tiedCount = ranked.filter(x => x.total === e.total).length;
-    let prizeStr = '';
-    if (e.place <= 4) {
-      let totalPot = 0;
-      for (let i = 0; i < tiedCount; i++) { totalPot += (PAYOUTS[e.place + i] || 0); }
-      const share = Math.round(totalPot / tiedCount);
-      prizeStr = share > 0 ? '$' + share.toLocaleString() : '';
-    }
-
-    return `<tr class="${e.place === 1 ? 'rank-1' : ''}">
-      <td class="rank">${e.place}</td>
-      <td class="owner">${e.owner}</td>
-      ${golfersHtml}
-      <td class="place-total">${e.total}</td>
-      <td class="prize">${prizeStr}</td>
-    </tr>`;
-  }).join('');
-
-  document.getElementById('mainContent').innerHTML = `<div class="table-wrap"><table><thead><tr><th>Rank</th><th>Entry</th><th>G1</th><th>G2</th><th>G3</th><th>G4</th><th style="text-align:center">Total</th><th style="text-align:center">Prize</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-}
-
-loadAll();
-setInterval(loadAll, 120000);
-</script>
-</body>
-</html>
