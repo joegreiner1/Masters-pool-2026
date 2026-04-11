@@ -1,0 +1,32 @@
+{
+  "updatedAt": "April 11, 2026 3:45 PM ET",
+  "leaderboard": [
+    {"fullName":"Justin Rose","lastName":"Rose","score":"-8","strokes":208,"pos":"1","thru":"F","isMC":false,"calcRank":1},
+    {"fullName":"Scottie Scheffler","lastName":"Scheffler","score":"-7","strokes":209,"pos":"2","thru":"17","isMC":false,"calcRank":2},
+    {"fullName":"Bryson DeChambeau","lastName":"DeChambeau","score":"-6","strokes":210,"pos":"T3","thru":"16","isMC":false,"calcRank":3},
+    {"fullName":"Rory McIlroy","lastName":"McIlroy","score":"-6","strokes":210,"pos":"T3","thru":"16","isMC":false,"calcRank":3},
+    {"fullName":"Tommy Fleetwood","lastName":"Fleetwood","score":"-5","strokes":211,"pos":"T5","thru":"15","isMC":false,"calcRank":5},
+    {"fullName":"Cameron Young","lastName":"Young","score":"-5","strokes":211,"pos":"T5","thru":"15","isMC":false,"calcRank":5},
+    {"fullName":"Xander Schauffele","lastName":"Schauffele","score":"-4","strokes":212,"pos":"T7","thru":"14","isMC":false,"calcRank":7},
+    {"fullName":"Ludvig Aberg","lastName":"Aberg","score":"-4","strokes":212,"pos":"T7","thru":"14","isMC":false,"calcRank":7},
+    {"fullName":"Matt Fitzpatrick","lastName":"Fitzpatrick","score":"-3","strokes":213,"pos":"T9","thru":"14","isMC":false,"calcRank":9},
+    {"fullName":"Jon Rahm","lastName":"Rahm","score":"-3","strokes":213,"pos":"T9","thru":"14","isMC":false,"calcRank":9},
+    {"fullName":"Jordan Spieth","lastName":"Spieth","score":"-2","strokes":214,"pos":"T11","thru":"13","isMC":false,"calcRank":11},
+    {"fullName":"Jacob Bridgeman","lastName":"Bridgeman","score":"-2","strokes":214,"pos":"T11","thru":"13","isMC":false,"calcRank":11},
+    {"fullName":"J.J. Spaun","lastName":"Spaun","score":"-1","strokes":215,"pos":"T13","thru":"13","isMC":false,"calcRank":13},
+    {"fullName":"Akshay Bhatia","lastName":"Bhatia","score":"-1","strokes":215,"pos":"T13","thru":"13","isMC":false,"calcRank":13},
+    {"fullName":"Sungjae Im","lastName":"Im","score":"E","strokes":216,"pos":"15","thru":"13","isMC":false,"calcRank":15},
+    {"fullName":"Hideki Matsuyama","lastName":"Matsuyama","score":"E","strokes":216,"pos":"15","thru":"13","isMC":false,"calcRank":15},
+    {"fullName":"Adam Scott","lastName":"Scott","score":"+1","strokes":217,"pos":"17","thru":"13","isMC":false,"calcRank":17},
+    {"fullName":"Jason Day","lastName":"Day","score":"+1","strokes":217,"pos":"17","thru":"13","isMC":false,"calcRank":17},
+    {"fullName":"Cameron Smith","lastName":"Smith","score":"+2","strokes":218,"pos":"19","thru":"13","isMC":false,"calcRank":19},
+    {"fullName":"Collin Morikawa","lastName":"Morikawa","score":"+2","strokes":218,"pos":"19","thru":"13","isMC":false,"calcRank":19},
+    {"fullName":"Robert MacIntyre","lastName":"MacIntyre","score":"+3","strokes":219,"pos":"21","thru":"13","isMC":false,"calcRank":21},
+    {"fullName":"Patrick Reed","lastName":"Reed","score":"+3","strokes":219,"pos":"21","thru":"13","isMC":false,"calcRank":21},
+    {"fullName":"Viktor Hovland","lastName":"Hovland","score":"+4","strokes":220,"pos":"23","thru":"13","isMC":false,"calcRank":23},
+    {"fullName":"Patrick Cantlay","lastName":"Cantlay","score":"+4","strokes":220,"pos":"23","thru":"13","isMC":false,"calcRank":23},
+    {"fullName":"Corey Conners","lastName":"Conners","score":"+5","strokes":221,"pos":"25","thru":"13","isMC":false,"calcRank":25},
+    {"fullName":"Chris Gotterup","lastName":"Gotterup","score":"+5","strokes":221,"pos":"25","thru":"13","isMC":false,"calcRank":25},
+    {"fullName":"Maverick McNealy","lastName":"McNealy","score":"MC","strokes":999,"pos":"CUT","thru":"MC","isMC":true,"calcRank":63}
+  ]
+}
